@@ -1,8 +1,9 @@
 (defproject todo "0.1.0-SNAPSHOT"
   :dependencies [[org.clojure/clojure       "1.8.0"]
                  [org.clojure/clojurescript "1.9.946"]
+                 [org.clojure/core.async "0.4.474"]
                  [funcool/promesa "1.9.0"]
-                ]
+                 [com.taoensso/timbre "4.10.0"]]
   :plugins [[lein-cljsbuild "1.1.7"]]
   :cljsbuild {
     :builds [{
@@ -15,7 +16,9 @@
           :output-to "./server.js"  ; default: target/cljsbuild-main.js
           :npm-deps {:nedb "1.8.0"
                      :express "4.16.2"
-                     :body-parser "1.18.2"} 
+                     :body-parser "1.18.2"
+                     :cors "2.8.4"
+                     :socket.io "2.0.4"} 
           :install-deps true 
           :target :nodejs
           :optimizations :none}}]})
