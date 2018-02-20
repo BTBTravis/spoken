@@ -1,7 +1,7 @@
 (defproject todo "0.1.0-SNAPSHOT"
   :dependencies [[org.clojure/clojure       "1.8.0"]
                  [org.clojure/clojurescript "1.9.946"]
-                 [org.clojure/core.async "0.4.474"]
+                 ;[org.clojure/core.async "0.4.474"]
                  [funcool/promesa "1.9.0"]
                  [com.taoensso/timbre "4.10.0"]]
   :plugins [[lein-cljsbuild "1.1.7"]]
