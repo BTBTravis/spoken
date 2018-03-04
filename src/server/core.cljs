@@ -1,18 +1,19 @@
 (ns server.core
-  (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs.nodejs :as nodejs]
             [cljs.pprint :as pretty]
             [nedb]
-            ;[clojure.core.async :as async :refer :all]
-            [cljs.core.async :as async :refer [take! put! chan <! >! close!]]
+            [cljs.core.async :as async :refer [put! chan <! >! close!]]
             [clojure.string :as str]
             [express]
             [body-parser]
             [cors]
+            [watson-developer-cloud]
             [promesa.core :as p]
             [socket.io :as s]
             ;[taoensso.timbre :as timbre :refer-macros [log spy]]
-))
+  )
+  (:require-macros [cljs.core.async.macros :refer [go]])
+)
 ; TODO: use cords var cors = require('cors')
 (nodejs/enable-util-print!)
 (def log (.-log js/console))
@@ -28,6 +29,20 @@
 ; TODO: send user inital set up updates
 
 ;(.on io "connection" #(log {:socket (.-client %)}))
+  ;socket.on('chat message', function(msg){
+    ;console.log('message: ' + msg);
+  ;});
+(.on io "connection" #(.on % "word" (fn [worddata] 
+  (-> worddata
+      ((fn [d] (js->clj d :keywordize-keys true)))
+      ;((fn [d] (:alternatives (first (:transcript d)))))
+      ((fn [d] (:alternatives d)))
+      ((fn [d] (first d)))
+      ;((fn [d] (pretty/pprint d)))
+      ((fn [d] (:transcript d)))
+      ((fn [d] (println d)))
+  )
+)))
 
 ;io.on('connection', function(client) {
     ;console.log('Client connected...');
@@ -145,11 +160,11 @@
    )
   )
 ))
-(put! addQue {:word "The" :user "travis"})
-(put! addQue {:word "him." :user "kelsey"})
-(put! addQue {:word "As" :user "jaci"})
-(put! addQue {:word "soon" :user "jaci"})
-(put! addQue {:word "as" :user "travis"})
+;(put! addQue {:word "The" :user "travis"})
+;(put! addQue {:word "him." :user "kelsey"})
+;(put! addQue {:word "As" :user "jaci"})
+;(put! addQue {:word "soon" :user "jaci"})
+;(put! addQue {:word "as" :user "travis"})
 ;(. app (post "/add" 
   ;(fn [req res] 
     ;(.json res (clj->js @state))
@@ -200,68 +215,6 @@
   ;// numReplaced = 3
   ;// Field 'system' on Mars, Earth, Jupiter now has value 'solar system'
 ;});
-(. app (post "/addword" 
-  (fn [req res] (let [bits (str/split req.body.str #"\s")
-                      user req.body.user]
-    (do
-      (go (pretty/pprint {:cword (<! (currentWord))})) 
-      ;(map #(put! addQue %) bits)
-      (doall (->> bits
-        (map #(put! addQue %))
-      ))
-        ;(map #(let [cword (go (<! (currentWord)))]
-          ;(identity cword)
-        ;))
-      ;))
-              ;(if (and (= cword %) (= user (:user cupdate))) (do
-              ;;(if true (do
-                  ;(pretty/pprint {:cupdate cupdate :cword cword :word % :if (= cword %) :if2 (not= user (:user cupdate))} )
-                  ;(->
-                    ;(p/promise (fn [resolve reject]
-                      ;(-> (.update db 
-                            ;(js-obj "_id" (:_id cupdate))
-                            ;(js-obj "$set" (js-obj "end" (+ (:end cupdate) 1)))
-                            ;(js-obj "multi" true)
-                            ;(fn [err res] 
-                              ;(if (not err) (resolve res) (reject err)) 
-                            ;))
-                      ;)
-                    ;))
-                    ;(p/then (fn [x] (println "updated last db entry" x)))
-                  ;)
-                  ;(println "sent promise to update last entry") %
-                ;) (do (println "skipping updating last entry") %) )
-            ;))
-          ;))
-          ;(map #(let [promises (p/all [(latestUpdate) (currentWord) %])]
-            ;(p/then promises  (fn [[cupdate cword word]]
-              ;(if (and (= cword word) (not= user (:user cupdate))) (do
-              ;;(if true (do
-                  ;;(pretty/pprint {:cupdate cupdate :cword cword :word %})
-                  ;(pretty/pprint {:cupdate cupdate :cword cword :word % :wordp word :if (= cword %) :if2 (not= user (:user cupdate))} )
-                  ;(->
-                    ;(p/promise (fn [resolve reject]
-                      ;(-> (.insert db 
-                            ;(js-obj "user" user "start" (+ (:end cupdate) 1) "end" (+ (:end cupdate) 2)); TODO: add color
-                            ;(fn [err res] 
-                              ;(if (not err) (resolve res) (reject err)) 
-                            ;))
-                      ;)
-                    ;))
-                    ;(p/then (fn [x] (println "added new db entry" x)))
-                  ;)
-                  ;(println "sent promise to add new entry") %
-                ;) (do (println "skipping adding new entry") %) )
-            ;))
-          ;))
-      ;))
-      (pretty/pprint {:bits bits :user user})
-      (.json res (clj->js {:status 200}))
-    ;)
-  ;))
-)))))
-
-             ;(#(p/all %))
      ; test if word is the next word needed
     ;; if it is the next word needed add create an update
     ;; while creating an update check if the last update was make by the same user as the last update
@@ -276,6 +229,22 @@
   ;)
 ;)
 
+(. app (post "/addword" 
+  (fn [req res] (let [bits (str/split req.body.str #"\s")
+                      user req.body.user]
+    (do
+      (go (pretty/pprint {:cword (<! (currentWord))})) 
+      ;(map #(put! addQue %) bits)
+      (doall (->> bits
+        (map #(put! addQue %))
+      ))
+      (pretty/pprint {:bits bits :user user})
+      (.json res (clj->js {:status 200}))
+    )
+  ))
+))
+
+
 (. app (get "/getallupdates" 
   (fn [req res] 
     (do
@@ -285,8 +254,42 @@
   )
 ))
 
-;(defn addUpdate [userstr start end cb] 
-;(.stringify js/JSON (clj->js {:key "value"}))
+;;WATSON AUTH STUFF
+;var sttAuthService = new watson.AuthorizationV1(
+  ;Object.assign(
+    ;{
+      ;username: process.env.SPEECH_TO_TEXT_USERNAME, // or hard-code credentials here
+      ;password: process.env.SPEECH_TO_TEXT_PASSWORD
+    ;},
+    ;vcapServices.getCredentials('speech_to_text') // pulls credentials from environment in bluemix, otherwise returns {}
+  ;)
+;);
+(def sttAuthService (new watson-developer-cloud/AuthorizationV1 (js-obj "username" "1b860fd3-bf11-4cc6-a962-5bac776d5744" "password" "LZ2TNegMz6NX")))
+;app.use('/api/speech-to-text/token', function(req, res) {
+  ;sttAuthService.getToken(
+    ;{
+      ;url: watson.SpeechToTextV1.URL
+    ;},
+    ;function(err, token) {
+      ;if (err) {
+        ;console.log('Error retrieving token: ', err);
+        ;res.status(500).send('Error retrieving token');
+        ;return;
+      ;}
+      ;res.send(token);
+    ;}
+  ;);
+;});
+
+(.use app "/api/speech-to-text/token" (fn [req res]
+  (.getToken sttAuthService 
+    (js-obj "url" watson-developer-cloud/SpeechToTextV1.URL) 
+    (fn [err, token] (.send res token))
+  )
+))
+
+
+
 (defn -main [& args]
   ;(def db (nedb. (js-obj "filename" "./todos" "autoload" true))) ;load db
   ;(.insert db (js-obj "txt" "go to british library" "status" 0) ) 
