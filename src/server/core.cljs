@@ -297,7 +297,7 @@
   ;(println  "fuck the world"))
   ;(println "Test2")
   ;(.listen app 3000)
-  (.listen server 3000)
+  (.listen server process.env.PORT)
 )   
 
 (set! *main-cli-fn* -main)
