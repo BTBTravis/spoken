@@ -108,14 +108,14 @@ return promesa.protocols._map.call(null,p,f);
  */
 promesa.core.chain = (function promesa$core$chain(var_args){
 var args__9230__auto__ = [];
-var len__9223__auto___9674 = arguments.length;
-var i__9224__auto___9675 = (0);
+var len__9223__auto___12498 = arguments.length;
+var i__9224__auto___12499 = (0);
 while(true){
-if((i__9224__auto___9675 < len__9223__auto___9674)){
-args__9230__auto__.push((arguments[i__9224__auto___9675]));
+if((i__9224__auto___12499 < len__9223__auto___12498)){
+args__9230__auto__.push((arguments[i__9224__auto___12499]));
 
-var G__9676 = (i__9224__auto___9675 + (1));
-i__9224__auto___9675 = G__9676;
+var G__12500 = (i__9224__auto___12499 + (1));
+i__9224__auto___12499 = G__12500;
 continue;
 } else {
 }
@@ -127,17 +127,17 @@ return promesa.core.chain.cljs$core$IFn$_invoke$arity$variadic((arguments[(0)]),
 });
 
 promesa.core.chain.cljs$core$IFn$_invoke$arity$variadic = (function (p,funcs){
-return cljs.core.reduce.call(null,(function (p1__9670_SHARP_,p2__9671_SHARP_){
-return promesa.core.then.call(null,p1__9670_SHARP_,p2__9671_SHARP_);
+return cljs.core.reduce.call(null,(function (p1__12494_SHARP_,p2__12495_SHARP_){
+return promesa.core.then.call(null,p1__12494_SHARP_,p2__12495_SHARP_);
 }),p,funcs);
 });
 
 promesa.core.chain.cljs$lang$maxFixedArity = (1);
 
-promesa.core.chain.cljs$lang$applyTo = (function (seq9672){
-var G__9673 = cljs.core.first.call(null,seq9672);
-var seq9672__$1 = cljs.core.next.call(null,seq9672);
-return promesa.core.chain.cljs$core$IFn$_invoke$arity$variadic(G__9673,seq9672__$1);
+promesa.core.chain.cljs$lang$applyTo = (function (seq12496){
+var G__12497 = cljs.core.first.call(null,seq12496);
+var seq12496__$1 = cljs.core.next.call(null,seq12496);
+return promesa.core.chain.cljs$core$IFn$_invoke$arity$variadic(G__12497,seq12496__$1);
 });
 
 promesa.core.branch = (function promesa$core$branch(p,success,failure){
@@ -147,8 +147,8 @@ return promesa.protocols._catch.call(null,promesa.protocols._map.call(null,p,suc
  * Catch all promise chain helper.
  */
 promesa.core.catch$ = (function promesa$core$catch(var_args){
-var G__9679 = arguments.length;
-switch (G__9679) {
+var G__12503 = arguments.length;
+switch (G__12503) {
 case 2:
 return promesa.core.catch$.cljs$core$IFn$_invoke$arity$2((arguments[(0)]),(arguments[(1)]));
 
@@ -168,8 +168,8 @@ return promesa.protocols._catch.call(null,p,f);
 });
 
 promesa.core.catch$.cljs$core$IFn$_invoke$arity$3 = (function (p,pred_or_type,f){
-var accept_QMARK_ = ((cljs.core.ifn_QMARK_.call(null,pred_or_type))?pred_or_type:(function (p1__9677_SHARP_){
-return (p1__9677_SHARP_ instanceof pred_or_type);
+var accept_QMARK_ = ((cljs.core.ifn_QMARK_.call(null,pred_or_type))?pred_or_type:(function (p1__12501_SHARP_){
+return (p1__12501_SHARP_ instanceof pred_or_type);
 }));
 return promesa.protocols._catch.call(null,p,((function (accept_QMARK_){
 return (function (e){
@@ -188,8 +188,8 @@ promesa.core.catch$.cljs$lang$maxFixedArity = 3;
  * Same as `catch` but with parameters inverted.
  */
 promesa.core.error = (function promesa$core$error(var_args){
-var G__9682 = arguments.length;
-switch (G__9682) {
+var G__12506 = arguments.length;
+switch (G__12506) {
 case 2:
 return promesa.core.error.cljs$core$IFn$_invoke$arity$2((arguments[(0)]),(arguments[(1)]));
 
@@ -276,34 +276,34 @@ return promesa.protocols._cancelled_QMARK_.call(null,v);
  */
 promesa.core.promisify = (function promesa$core$promisify(callable){
 return (function() { 
-var G__9685__delegate = function (args){
+var G__12509__delegate = function (args){
 return promesa.core.promise.call(null,(function (resolve,reject){
 var args__$1 = cljs.core.conj.call(null,cljs.core.vec.call(null,args),resolve);
 try{return cljs.core.apply.call(null,callable,args__$1);
-}catch (e9684){if((e9684 instanceof Error)){
-var e = e9684;
+}catch (e12508){if((e12508 instanceof Error)){
+var e = e12508;
 return reject.call(null,e);
 } else {
-throw e9684;
+throw e12508;
 
 }
 }}));
 };
-var G__9685 = function (var_args){
+var G__12509 = function (var_args){
 var args = null;
 if (arguments.length > 0) {
-var G__9686__i = 0, G__9686__a = new Array(arguments.length -  0);
-while (G__9686__i < G__9686__a.length) {G__9686__a[G__9686__i] = arguments[G__9686__i + 0]; ++G__9686__i;}
-  args = new cljs.core.IndexedSeq(G__9686__a,0,null);
+var G__12510__i = 0, G__12510__a = new Array(arguments.length -  0);
+while (G__12510__i < G__12510__a.length) {G__12510__a[G__12510__i] = arguments[G__12510__i + 0]; ++G__12510__i;}
+  args = new cljs.core.IndexedSeq(G__12510__a,0,null);
 } 
-return G__9685__delegate.call(this,args);};
-G__9685.cljs$lang$maxFixedArity = 0;
-G__9685.cljs$lang$applyTo = (function (arglist__9687){
-var args = cljs.core.seq(arglist__9687);
-return G__9685__delegate(args);
+return G__12509__delegate.call(this,args);};
+G__12509.cljs$lang$maxFixedArity = 0;
+G__12509.cljs$lang$applyTo = (function (arglist__12511){
+var args = cljs.core.seq(arglist__12511);
+return G__12509__delegate(args);
 });
-G__9685.cljs$core$IFn$_invoke$arity$variadic = G__9685__delegate;
-return G__9685;
+G__12509.cljs$core$IFn$_invoke$arity$variadic = G__12509__delegate;
+return G__12509;
 })()
 ;
 });
@@ -315,8 +315,8 @@ return G__9685;
  *   with a TimeoutError
  */
 promesa.core.timeout = (function promesa$core$timeout(var_args){
-var G__9689 = arguments.length;
-switch (G__9689) {
+var G__12513 = arguments.length;
+switch (G__12513) {
 case 2:
 return promesa.core.timeout.cljs$core$IFn$_invoke$arity$2((arguments[(0)]),(arguments[(1)]));
 
@@ -348,8 +348,8 @@ promesa.core.timeout.cljs$lang$maxFixedArity = 3;
  *   time is reached.
  */
 promesa.core.delay = (function promesa$core$delay(var_args){
-var G__9692 = arguments.length;
-switch (G__9692) {
+var G__12516 = arguments.length;
+switch (G__12516) {
 case 1:
 return promesa.core.delay.cljs$core$IFn$_invoke$arity$1((arguments[(0)]));
 
@@ -390,14 +390,14 @@ return resolve.call(null,callback.call(null));
 });
 promesa.core.await$ = (function promesa$core$await(var_args){
 var args__9230__auto__ = [];
-var len__9223__auto___9695 = arguments.length;
-var i__9224__auto___9696 = (0);
+var len__9223__auto___12519 = arguments.length;
+var i__9224__auto___12520 = (0);
 while(true){
-if((i__9224__auto___9696 < len__9223__auto___9695)){
-args__9230__auto__.push((arguments[i__9224__auto___9696]));
+if((i__9224__auto___12520 < len__9223__auto___12519)){
+args__9230__auto__.push((arguments[i__9224__auto___12520]));
 
-var G__9697 = (i__9224__auto___9696 + (1));
-i__9224__auto___9696 = G__9697;
+var G__12521 = (i__9224__auto___12520 + (1));
+i__9224__auto___12520 = G__12521;
 continue;
 } else {
 }
@@ -414,8 +414,8 @@ throw cljs.core.ex_info.call(null,"Should be only used in alet macro.",cljs.core
 
 promesa.core.await$.cljs$lang$maxFixedArity = (0);
 
-promesa.core.await$.cljs$lang$applyTo = (function (seq9694){
-return promesa.core.await$.cljs$core$IFn$_invoke$arity$variadic(cljs.core.seq.call(null,seq9694));
+promesa.core.await$.cljs$lang$applyTo = (function (seq12518){
+return promesa.core.await$.cljs$core$IFn$_invoke$arity$variadic(cljs.core.seq.call(null,seq12518));
 });
 
 

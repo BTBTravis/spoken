@@ -9,8 +9,8 @@ promesa.impl.Promise.prototype.promesa$protocols$IPromise$ = cljs.core.PROTOCOL_
 promesa.impl.Promise.prototype.promesa$protocols$IPromise$_map$arity$2 = (function (it,cb){
 var it__$1 = this;
 return it__$1.then(((function (it__$1){
-return (function (p1__9655_SHARP_){
-return cb.call(null,p1__9655_SHARP_);
+return (function (p1__12479_SHARP_){
+return cb.call(null,p1__12479_SHARP_);
 });})(it__$1))
 );
 });
@@ -18,8 +18,8 @@ return cb.call(null,p1__9655_SHARP_);
 promesa.impl.Promise.prototype.promesa$protocols$IPromise$_bind$arity$2 = (function (it,cb){
 var it__$1 = this;
 return it__$1.then(((function (it__$1){
-return (function (p1__9656_SHARP_){
-return cb.call(null,p1__9656_SHARP_);
+return (function (p1__12480_SHARP_){
+return cb.call(null,p1__12480_SHARP_);
 });})(it__$1))
 );
 });
@@ -27,8 +27,8 @@ return cb.call(null,p1__9656_SHARP_);
 promesa.impl.Promise.prototype.promesa$protocols$IPromise$_catch$arity$2 = (function (it,cb){
 var it__$1 = this;
 return it__$1.caught(((function (it__$1){
-return (function (p1__9657_SHARP_){
-return cb.call(null,p1__9657_SHARP_);
+return (function (p1__12481_SHARP_){
+return cb.call(null,p1__12481_SHARP_);
 });})(it__$1))
 );
 });

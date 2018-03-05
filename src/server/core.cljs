@@ -40,13 +40,21 @@
       ((fn [d] (first d)))
       ;((fn [d] (pretty/pprint d)))
       ((fn [d] (:transcript d)))
-      ((fn [d] (println d)))
-  )
+      ;((fn [d] (println d)))
+      ((fn [d] (let [bits (str/split d #"\s") user "travis"]
+        (do
+          (go (pretty/pprint {:cword (<! (currentWord))})) 
+          (pretty/pprint {:bits bits :user user})
+          (doall (->> bits
+            (map (fn [x] (put! addQue {:word x :user user})))
+          ))
+        )
+      )))
+    )
 )))
 
 ;io.on('connection', function(client) {
     ;console.log('Client connected...');
-
     ;client.on('join', function(data) {
         ;console.log(data);
     ;});
@@ -56,14 +64,14 @@
 ;(def state (atom [{:text "get milk" :status 0}]))
 
 
-(defn addUpdate [userstr start end] 
-  (p/promise (fn [resolve reject]
-    ;(cljs.pprint/pprint {:action "adding update" :userstr userstr :start start :end end})
-    (.insert db (js-obj "userstr" userstr "start" start "end" end) (fn [err res] 
-      (if (not err) (resolve {:err err :res res}) (reject err)) 
-    ))
-  ))
-)
+;(defn addUpdate [userstr start end] 
+  ;(p/promise (fn [resolve reject]
+    ;;(cljs.pprint/pprint {:action "adding update" :userstr userstr :start start :end end})
+    ;(.insert db (js-obj "userstr" userstr "start" start "end" end) (fn [err res] 
+      ;(if (not err) (resolve {:err err :res res}) (reject err)) 
+    ;))
+  ;))
+;)
 
 ;alert((date.getMonth() + 1) + '/' + date.getDate() + '/' +  date.getFullYear());
 ;new SimpleDateFormat("MM/dd/yyyy").format(new Date(timeStampMillisInLong));
@@ -94,7 +102,7 @@
     c
   )
 )
-;(go (pretty/pprint (<! (getAllUpdates)))) 
+;(go (pretty/pprint (<! (allUpdates)))) 
 (defn latestUpdate [] 
   (let [c (chan)]  
     (-> (.find db (js-obj))
@@ -126,7 +134,7 @@
   c
   )
 )
-;(go (pretty/pprint (<! (currentWord)))) 
+(go (pretty/pprint (<! (currentWord)))) 
 ;(.insert db 
          ;(js-obj "user" user "start" (+ (:end cupdate) 1) "end" (+ (:end cupdate) 2)); TODO: add color
          ;(fn [err res] 
@@ -148,6 +156,7 @@
            )
         )
    )
+
    (if (and (= cword (:word addMap)) (not= (:user addMap) (:user lupdate))) 
        (-> (.insert db 
              (js-obj "user" (:user addMap)"start" (+ (:end lupdate) 1) "end" (+ (:end lupdate) 2))
@@ -160,7 +169,8 @@
    )
   )
 ))
-;(put! addQue {:word "The" :user "travis"})
+;(pretty/pprint (go (<!(latestUpdate))))
+;(put! addQue {:word "a" :user "travis"})
 ;(put! addQue {:word "him." :user "kelsey"})
 ;(put! addQue {:word "As" :user "jaci"})
 ;(put! addQue {:word "soon" :user "jaci"})
