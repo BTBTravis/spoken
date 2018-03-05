@@ -28,6 +28,7 @@
 (def io (s server))
 ; TODO: send user inital set up updates
 
+
 ;(.on io "connection" #(log {:socket (.-client %)}))
   ;socket.on('chat message', function(msg){
     ;console.log('message: ' + msg);
@@ -46,12 +47,12 @@
       })))
       ;((fn [d] (println d)))
       ;((fn [d] (pretty/pprint d)))
-      ((fn [d] (let [bits (str/split (:words d) #"\s") user (:user d)]
+      ((fn [d] (let [bits (str/split (:words d) #"\s") uname (:user d)]
         (do
           (go (pretty/pprint {:cword (<! (currentWord))})) 
-          (pretty/pprint {:bits bits :user user})
+          (pretty/pprint {:bits bits :user uname})
           (doall (->> bits
-            (map (fn [x] (put! addQue {:word x :user user})))
+            (map (fn [x] (put! addQue {:word x :user uname})))
           ))
         )
       )))
