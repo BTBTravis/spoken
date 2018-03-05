@@ -35,13 +35,18 @@
 (.on io "connection" #(.on % "word" (fn [worddata] 
   (-> worddata
       ((fn [d] (js->clj d :keywordize-keys true)))
-      ;((fn [d] (:alternatives (first (:transcript d)))))
-      ((fn [d] (:alternatives d)))
-      ((fn [d] (first d)))
-      ;((fn [d] (pretty/pprint d)))
-      ((fn [d] (:transcript d)))
+      ((fn [d] (identity {
+        :words (-> d
+         (:words)
+         (:alternatives)
+         (first)
+         (:transcript)
+        ) 
+        :user (:user d)
+      })))
       ;((fn [d] (println d)))
-      ((fn [d] (let [bits (str/split d #"\s") user "travis"]
+      ;((fn [d] (pretty/pprint d)))
+      ((fn [d] (let [bits (str/split (:words d) #"\s") user (:user d)]
         (do
           (go (pretty/pprint {:cword (<! (currentWord))})) 
           (pretty/pprint {:bits bits :user user})
