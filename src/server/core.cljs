@@ -288,16 +288,8 @@
   )
 ))
 
-
-
 (defn -main [& args]
-  ;(def db (nedb. (js-obj "filename" "./todos" "autoload" true))) ;load db
-  ;(.insert db (js-obj "txt" "go to british library" "status" 0) ) 
-  ;(js/console.log "nedb =>" (pr-str db))
-  ;(println  "fuck the world"))
-  ;(println "Test2")
-  ;(.listen app 3000)
-  (.listen server process.env.PORT)
+  (.listen server (js/parseInt (aget js/process.env "PORT")))
 )   
 
 (set! *main-cli-fn* -main)
