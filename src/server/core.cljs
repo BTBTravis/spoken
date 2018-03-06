@@ -139,9 +139,8 @@
         ((fn [index] (let [words (str/split faketxt #"\s")]
           (nth words index))))
         ;TODO: remove punctation and case
-        (#(str/lower-case %))
-        (#(str/replace % #"\.|," ""))
-        (#(str/lower-case %))
+        (#(str/lower-case %)) 
+        (#(str/replace % #"\.|," "")); remove . and ,
         (#(put! c %))
     ))
   c
