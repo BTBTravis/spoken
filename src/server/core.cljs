@@ -33,32 +33,46 @@
   ;socket.on('chat message', function(msg){
     ;console.log('message: ' + msg);
   ;});
-(.on io "connection" #(.on % "word" (fn [worddata] 
-  (-> worddata
-      ((fn [d] (js->clj d :keywordize-keys true)))
-      ((fn [d] (identity {
-        :words (-> d
-         (:words)
-         (:alternatives)
-         (first)
-         (:transcript)
-        ) 
-        :user (:user d)
-      })))
-      ;((fn [d] (println d)))
-      ;((fn [d] (pretty/pprint d)))
-      ((fn [d] (let [bits (str/split (:words d) #"\s") uname (:user d)]
-        (do
-          (go (pretty/pprint {:cword (<! (currentWord))})) 
-          (pretty/pprint {:bits bits :user uname})
-          (doall (->> bits
-            (map (fn [x] (put! addQue {:word x :user uname})))
-          ))
-        )
-      )))
-    )
-)))
+(def sendQue (chan))
+(.on io "connection" 
+         #(do (.on % "word" (fn [worddata] 
+                              (-> worddata
+                                ((fn [d] (js->clj d :keywordize-keys true)))
+                                ((fn [d] (identity {
+                                                    :words (-> d
+                                                          (:words)
+                                                          (:alternatives)
+                                                          (first)
+                                                          (:transcript)
+                                                          ) 
+                                               :user (:user d)
+                                               })))
+                           ;((fn [d] (println d)))
+                           ;((fn [d] (pretty/pprint d)))
+                           ((fn [d] (let [bits (str/split (:words d) #"\s") uname (:user d)]
+                                      (do
+                                        (go (pretty/pprint {:cword (<! (currentWord))})) 
+                                        (pretty/pprint {:bits bits :user uname})
+                                        (doall (->> bits
+                                                    (map (fn [x] (put! addQue {:word x :user uname})))
+                                                    ))
+                                        )
+                                      )))
+                           ))
+    (go (while true
+          (let [message (<! sendQue)]
+            (pretty/pprint {:message message})
+            (.emit io "update" message)
+            )))
+    )))
 
+    ;(.emit io "update" (clj->js {:test "test string"}))
+     ;(if (and (= cword (:word addMap)) (= (:user addMap) (:user lupdate))) 
+       ;(-> (.update db 
+  
+
+;(put! sendQue {:testdata "test"})
+;(.emit io "update" (clj->js {:test "test string"}))
 ;io.on('connection', function(client) {
     ;console.log('Client connected...');
     ;client.on('join', function(data) {
@@ -97,7 +111,7 @@
   (let [c (chan)]
     ;(.readFile (nodejs/require "fs") "path/to/file" "utf8" (fn [err, res] (go (>! c res))) (<! c)))
     (-> (.find db (js-obj))
-        (.sort  (js-obj "start" -1))
+        (.sort  (js-obj "order" -1))
         (.exec (fn [err res] 
           (do 
             ;(pretty/pprint res)
@@ -160,8 +174,9 @@
 )
 (go (pretty/pprint (<! (currentWord)))) 
 
- 
-
+(defn sendUpdate []
+  (go (.emit io "update" (.stringify js/JSON (clj->js (<! (allUpdates)))))))
+;(sendUpdate)
 ;(.insert db 
          ;(js-obj "user" user "start" (+ (:end cupdate) 1) "end" (+ (:end cupdate) 2)); TODO: add color
          ;(fn [err res] 
@@ -180,7 +195,9 @@
              (js-obj "multi" true)
              (fn [err res] 
                ;(if (not err) (resolve res) (reject err)) 
-               (do (println "Updated Last update"))
+               ;(do (println "Updated Last update"))
+               (println "Updated Last update")
+               (sendUpdate)
              )
            )
         )
@@ -195,7 +212,8 @@
              )
              (fn [err res] 
                ;(if (not err) (resolve res) (reject err)) 
-               (do (println "Inserted Update"))
+               (println "Inserted Update")
+               (sendUpdate)
              )
            )
         )
@@ -205,8 +223,8 @@
 ;(pretty/pprint (go (<!(latestUpdate))))
 ;(put! addQue {:word "the" :user "travis"})
 ;(put! addQue {:word "quick" :user "kelsey"})
-;(put! addQue {:word "brown" :user "jaci"})
-(put! addQue {:word "fox" :user "jaci"})
+;(put! addQue {:word "brown" :user "kelsey"})
+;(put! addQue {:word "fox" :user "sam"})
 ;(put! addQue {:word "as" :user "travis"})
 ;(. app (post "/add" 
   ;(fn [req res] 
