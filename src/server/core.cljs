@@ -112,15 +112,17 @@
 (defn latestUpdate [] 
   (let [c (chan)]  
     (-> (.find db (js-obj))
-        (.sort  (js-obj "start" -1))
+        (.sort  (js-obj "order" -1))
         (.limit 1)
         (.exec (fn [err res]
           (if (>  (count res) 0) 
             (-> res
                (#(first %))
                (#(js->clj % :keywordize-keys true))
+               ;(#(js->clj (:wordIds %)))
                (#(put! c %))
             )
+            ;(#(put! c {:user "none" :wordIds [-1]}))
             (#(put! c false))
           )
         ))
@@ -128,17 +130,27 @@
     c
   )
 )
-;(go (pretty/pprint (<! (latestUpdate)))) 
+(go (pretty/pprint (<! (latestUpdate)))) 
+;(go (pretty/pprint (type (:wordIds (<! (latestUpdate)))) ))
+
+(defn currentIndex []
+  (let [c (chan)]
+    (go (-> 
+        (<! (latestUpdate))
+        (#(if (map? %)  (+ (last (:wordIds %)) 1) 0))
+        (#(put! c %))
+    ))
+  c
+  )
+)
+;(go (pretty/pprint (<! (currentIndex))))
 
 (defn currentWord []
   (let [c (chan)]
     (go (-> 
-        (<! (latestUpdate))
-        (#(if (map? %) % {:end 0}))
-        (#(:end %))
+        (<! (currentIndex))
         ((fn [index] (let [words (str/split faketxt #"\s")]
           (nth words index))))
-        ;TODO: remove punctation and case
         (#(str/lower-case %)) 
         (#(str/replace % #"\.|," "")); remove . and ,
         (#(put! c %))
@@ -147,6 +159,9 @@
   )
 )
 (go (pretty/pprint (<! (currentWord)))) 
+
+ 
+
 ;(.insert db 
          ;(js-obj "user" user "start" (+ (:end cupdate) 1) "end" (+ (:end cupdate) 2)); TODO: add color
          ;(fn [err res] 
@@ -154,12 +169,14 @@
 
 (def addQue (chan))
 (go (while true
-  (let [addMap (<! addQue) cword (<! (go (<!(currentWord)))) lupdate (<! (go (<!(latestUpdate))))]
+  (let [addMap (<! addQue) cword (<! (go (<!(currentWord)))) cindex (<! (go (<!(currentIndex)))) lupdate (<! (go (<!(latestUpdate))))]
    (pretty/pprint {:word (:word addMap) :user (:user addMap) :cword cword :lupdate lupdate})
    (if (and (= cword (:word addMap)) (= (:user addMap) (:user lupdate))) 
        (-> (.update db 
              (js-obj "_id" (:_id lupdate))
-             (js-obj "$set" (js-obj "end" (+ (:end lupdate) 1)))
+             (js-obj "$set" (js-obj 
+               "wordIds" (clj->js (conj (:wordIds lupdate) cindex))
+             ))
              (js-obj "multi" true)
              (fn [err res] 
                ;(if (not err) (resolve res) (reject err)) 
@@ -171,7 +188,11 @@
 
    (if (and (= cword (:word addMap)) (not= (:user addMap) (:user lupdate))) 
        (-> (.insert db 
-             (js-obj "user" (:user addMap)"start" (+ (:end lupdate) 1) "end" (+ (:end lupdate) 2))
+             (js-obj 
+               "user" (:user addMap) 
+               "wordIds" (clj->js [cindex])
+               "order" cindex
+             )
              (fn [err res] 
                ;(if (not err) (resolve res) (reject err)) 
                (do (println "Inserted Update"))
@@ -182,10 +203,10 @@
   )
 ))
 ;(pretty/pprint (go (<!(latestUpdate))))
-;(put! addQue {:word "a" :user "travis"})
-;(put! addQue {:word "him." :user "kelsey"})
-;(put! addQue {:word "As" :user "jaci"})
-;(put! addQue {:word "soon" :user "jaci"})
+;(put! addQue {:word "the" :user "travis"})
+;(put! addQue {:word "quick" :user "kelsey"})
+;(put! addQue {:word "brown" :user "jaci"})
+(put! addQue {:word "fox" :user "jaci"})
 ;(put! addQue {:word "as" :user "travis"})
 ;(. app (post "/add" 
   ;(fn [req res] 
