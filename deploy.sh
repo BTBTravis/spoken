@@ -11,5 +11,5 @@ lein cljsbuild once
 git add .
 git commit -m "commit data to deploy"
 git push heroku temp:master
-git chekout master
-git branch -d temp
+git checkout master
+git branch -D temp
