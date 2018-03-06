@@ -6,6 +6,7 @@ echo "Switching to deployment .gitignore"
 mv .gitignore.deploy .gitignore
 git add .
 git commit -m "preparing .gitignore for deployment"
+echo "Building Files"
 lein cljsbuild once
 git add .
 git commit -m "commit data to deploy"
