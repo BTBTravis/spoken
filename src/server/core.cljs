@@ -10,7 +10,6 @@
             [watson-developer-cloud]
             [promesa.core :as p]
             [socket.io :as s]
-            ;[taoensso.timbre :as timbre :refer-macros [log spy]]
   )
   (:require-macros [cljs.core.async.macros :refer [go]])
 )
@@ -18,7 +17,7 @@
 (nodejs/enable-util-print!)
 (def log (.-log js/console))
 ; Load global resoruces
-(def faketxt "The quick brown fox jumped over the lazy dog. Little did the fox know the dog was laying a trap for him. As soon as the foxed landed a snap of jaws and this rear leg was mangled")
+(def faketxt "Design Patterns Elements of Reusable Object Oriented Software is a software engineering book describing software design patterns. The book is divided into two parts, with the first two chapters exploring the capabilities and pitfalls of object oriented programming and the remaining chapters describing twenty three classic software design patterns")
 (def db (nedb. (js-obj "filename" "./dbs/updates" "autoload" true))) ;load db
 
 ; Set up express server with socket.io
@@ -26,86 +25,33 @@
 (def http (nodejs/require "http")) 
 (def server (.Server http app)) 
 (def io (s server))
-; TODO: send user inital set up updates
 
-
-;(.on io "connection" #(log {:socket (.-client %)}))
-  ;socket.on('chat message', function(msg){
-    ;console.log('message: ' + msg);
-  ;});
-(def sendQue (chan))
 (.on io "connection" 
-         #(do (.on % "word" (fn [worddata] 
-                              (-> worddata
-                                ((fn [d] (js->clj d :keywordize-keys true)))
-                                ((fn [d] (identity {
-                                                    :words (-> d
-                                                          (:words)
-                                                          (:alternatives)
-                                                          (first)
-                                                          (:transcript)
-                                                          ) 
-                                               :user (:user d)
-                                               })))
-                           ;((fn [d] (println d)))
+  #(do (.on % "word" (fn [worddata] 
+                        (-> worddata
+                          ((fn [d] (js->clj d :keywordize-keys true)))
+                          ((fn [d] (identity 
+                            { :words (-> d
+                                         (:words)
+                                         (:alternatives)
+                                         (first)
+                                         (:transcript)) 
+                               :user (:user d)})))
                            ;((fn [d] (pretty/pprint d)))
                            ((fn [d] (let [bits (str/split (:words d) #"\s") uname (:user d)]
-                                      (do
-                                        (go (pretty/pprint {:cword (<! (currentWord))})) 
-                                        (pretty/pprint {:bits bits :user uname})
-                                        (doall (->> bits
-                                                    (map (fn [x] (put! addQue {:word x :user uname})))
-                                                    ))
-                                        )
-                                      )))
+                             (do
+                               (go (pretty/pprint {:cword (<! (currentWord))})) 
+                               (pretty/pprint {:bits bits :user uname})
+                               (doall (->> bits
+                                           (map (fn [x] (put! addQue {:word x :user uname})))
+                                           ))
+                               )
+                             )))
                            ))
-    (go (while true
-          (let [message (<! sendQue)]
-            (pretty/pprint {:message message})
-            (.emit io "update" message)
             )))
-    )))
 
-    ;(.emit io "update" (clj->js {:test "test string"}))
-     ;(if (and (= cword (:word addMap)) (= (:user addMap) (:user lupdate))) 
-       ;(-> (.update db 
-  
-
-;(put! sendQue {:testdata "test"})
-;(.emit io "update" (clj->js {:test "test string"}))
-;io.on('connection', function(client) {
-    ;console.log('Client connected...');
-    ;client.on('join', function(data) {
-        ;console.log(data);
-    ;});
-;(. app (use (. cors nil)))
 (.use app (cors nil))
 (. app (use (.json body-parser nil)))
-;(def state (atom [{:text "get milk" :status 0}]))
-
-
-;(defn addUpdate [userstr start end] 
-  ;(p/promise (fn [resolve reject]
-    ;;(cljs.pprint/pprint {:action "adding update" :userstr userstr :start start :end end})
-    ;(.insert db (js-obj "userstr" userstr "start" start "end" end) (fn [err res] 
-      ;(if (not err) (resolve {:err err :res res}) (reject err)) 
-    ;))
-  ;))
-;)
-
-;alert((date.getMonth() + 1) + '/' + date.getDate() + '/' +  date.getFullYear());
-;new SimpleDateFormat("MM/dd/yyyy").format(new Date(timeStampMillisInLong));
-;(defn curDate []
-  ;(.format (new js/SimpleDateFormat "MM/dd/yyyy") (js/Date. js/timeStampMillisInLong))
-;)
-;(println (curDate))
-;; CORE ASYNC EXAMPLE
-;(defn jsonp [uri]
-  ;(let [out (chan)
-        ;req (Jsonp. (Uri. uri))]
-    ;(.send req nil (fn [res] (put! out res)))
-    ;out))
-;(go (.log js/console (<! (jsonp (query-url "cats")))))
 
 (defn allUpdates [] 
   (let [c (chan)]
@@ -166,7 +112,7 @@
         ((fn [index] (let [words (str/split faketxt #"\s")]
           (nth words index))))
         (#(str/lower-case %)) 
-        (#(str/replace % #"\.|," "")); remove . and ,
+        (#(str/replace % #"\.|,|-" "")); remove . and ,
         (#(put! c %))
     ))
   c
@@ -220,75 +166,6 @@
    )
   )
 ))
-;(pretty/pprint (go (<!(latestUpdate))))
-;(put! addQue {:word "the" :user "travis"})
-;(put! addQue {:word "quick" :user "kelsey"})
-;(put! addQue {:word "brown" :user "kelsey"})
-;(put! addQue {:word "fox" :user "sam"})
-;(put! addQue {:word "as" :user "travis"})
-;(. app (post "/add" 
-  ;(fn [req res] 
-    ;(.json res (clj->js @state))
-    ;(swap! state #(conj % (js->clj req.body))) 
-    ;(js/console.log "req =>" (pr-str req.body))
-  ;)
-;))           ;(fn [req res] (. res (send "Hello world")))))
-
-;(. app (post "/check" 
-  ;(fn [req res] 
-    ;(cljs.pprint/pprint req)
-    ;;(-> (addUpdate "travis 12/01/2009" 6 2)
-      ;;(p/then #(.json res (clj->js %)))
-      ;;(p/then #(println "Task finished" %))
-      ;;(p/catch #(println "Timeout" %))
-    ;;)
-  ;)
-;))
-
-;(. app (post "/addupdate" 
-  ;(fn [req res] 
-    ;(-> 
-      ;(addUpdate req.body.userstr req.body.start req.body.end)
-      ;(p/then #(.json res (clj->js %)))
-        ;;io.emit('an event sent to all connected clients'); // main namespace
-        ;;(log req)
-      ;;(p/then #(let [data (clj->js %)]
-        ;;(do
-          ;;(.json res (clj->js data))
-          ;;(.emit io "update" data)
-        ;;)
-      ;;))
-      ;(p/then #(println "addupdate finished" %))
-      ;(p/catch #(println "Timeout" %))
-    ;)
-  ;)
-;))
-
-
-;(-> (latestUpdate)
-  ;;(p/then #(type %))
-  ;(p/then #(:end %))
-  ;;(p/then #(get % :end))
-  ;(p/then #(pretty/pprint %))
-;)
-;// Set an existing field's value
-;db.update({ system: 'solar' }, { $set: { system: 'solar system' } }, { multi: true }, function (err, numReplaced) {
-  ;// numReplaced = 3
-  ;// Field 'system' on Mars, Earth, Jupiter now has value 'solar system'
-;});
-     ; test if word is the next word needed
-    ;; if it is the next word needed add create an update
-    ;; while creating an update check if the last update was make by the same user as the last update
-    ;; if the same user string update that update entry incrimenting the end property
-    ;; if not create a new user string and check that against a database of colors 
-    ;; add the newly created userstr, color, start and end to the updates table
-    ;; if needed add the user string to the color table
-    ;(-> 
-
-      
-    ;)
-  ;)
-;)
 
 (. app (post "/addword" 
   (fn [req res] (let [bits (str/split req.body.str #"\s")
@@ -325,7 +202,7 @@
     ;vcapServices.getCredentials('speech_to_text') // pulls credentials from environment in bluemix, otherwise returns {}
   ;)
 ;);
-(def sttAuthService (new watson-developer-cloud/AuthorizationV1 (js-obj "username" "1b860fd3-bf11-4cc6-a962-5bac776d5744" "password" "LZ2TNegMz6NX")))
+(def sttAuthService (new watson-developer-cloud/AuthorizationV1 (js-obj "username" (aget js/process.env "IBMUSER") "password" (aget js/process.env "IBMPW"))))
 ;app.use('/api/speech-to-text/token', function(req, res) {
   ;sttAuthService.getToken(
     ;{
