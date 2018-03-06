@@ -115,10 +115,13 @@
         (.sort  (js-obj "start" -1))
         (.limit 1)
         (.exec (fn [err res]
-          (-> res
-             (#(first %))
-             (#(js->clj % :keywordize-keys true))
-             (#(put! c %))
+          (if (>  (count res) 0) 
+            (-> res
+               (#(first %))
+               (#(js->clj % :keywordize-keys true))
+               (#(put! c %))
+            )
+            (#(put! c false))
           )
         ))
     )
@@ -131,10 +134,14 @@
   (let [c (chan)]
     (go (-> 
         (<! (latestUpdate))
+        (#(if (map? %) % {:end 0}))
         (#(:end %))
         ((fn [index] (let [words (str/split faketxt #"\s")]
           (nth words index))))
         ;TODO: remove punctation and case
+        (#(str/lower-case %))
+        (#(str/replace % #"\.|," ""))
+        (#(str/lower-case %))
         (#(put! c %))
     ))
   c
